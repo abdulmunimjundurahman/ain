@@ -1,0 +1,303 @@
+# For more information, see the Configuration Guide:
+# https://www.librechat.ai/docs/configuration/librechat_yaml
+
+# Configuration version (required)
+version: 1.0.0
+
+# Cache settings: Set to true to enable caching
+cache: true
+
+# File storage configuration
+# Single strategy for all file types (legacy format, still supported)
+fileStrategy: "local"
+
+# Granular file storage strategies (new format - recommended)
+# Allows different storage strategies for different file types
+# fileStrategy:
+#   avatar: "s3"        # Storage for user/agent avatar images
+#   image: "firebase"   # Storage for uploaded images in chats
+#   document: "local"   # Storage for document uploads (PDFs, text files, etc.)
+
+# Available strategies: "local", "s3", "firebase"
+# If not specified, defaults to "local" for all file types
+# You can mix and match strategies based on your needs:
+# - Use S3 for avatars for fast global access
+# - Use Firebase for images with automatic optimization
+# - Use local storage for documents for privacy/compliance
+
+# Custom interface configuration
+interface:
+  customWelcome: 'Welcome to AIN! Enjoy your private AI experience.'
+  # Enable/disable file search as a chatarea selection (default: true)
+  # Note: This setting does not disable the Agents File Search Capability.
+  # To disable the Agents Capability, see the Agents Endpoint configuration instead.
+  fileSearch: true
+  # Privacy policy settings
+  privacyPolicy:
+    externalUrl: 'https://osos.om/privacy'
+    openNewTab: true
+
+  # Terms of service
+  termsOfService:
+    externalUrl: 'https://osos.om/terms'
+    openNewTab: true
+    modalAcceptance: true
+    modalTitle: 'Terms of Service for OSOS'
+    modalContent: |
+      # Terms and Conditions for OSOS AI
+
+      Effective Date: September 2, 2025
+
+      Welcome to OSOS AI, available at https://osos.om. These Terms of Service ("Terms") govern your access to and use of OSOS AI and related services (collectively, the "Services"). By using the Services, you agree to these Terms and to our Privacy Policy available at https://osos.om/privacy.
+
+      ## 1. Ownership and License
+
+      OSOS retains all rights, title, and interest in and to the Services. Subject to these Terms, OSOS grants you a limited, revocable, non-exclusive, and non-transferable right to access and use the Services for lawful purposes. You may not resell, redistribute, sublicense, or otherwise commercially exploit the Services without prior written permission from OSOS.
+
+      ## 2. User Data and Privacy
+
+      We process personal and usage data as described in our Privacy Policy. You are responsible for ensuring that any data you provide is accurate and that you have the necessary rights to submit it. You must not upload content that violates applicable laws, infringes rights of others, or contains malicious code.
+
+      ## 3. Acceptable Use
+
+      You agree not to misuse the Services, including by attempting to access systems without authorization, reverse-engineering components, interfering with service integrity, or using the Services to generate or disseminate content that is unlawful, harmful, or violates third-party rights.
+
+      ## 4. Service Availability and Changes
+
+      We may modify, suspend, or discontinue features or access to the Services at any time, with or without notice. We may also update these Terms. Material changes will be communicated via the Services or other reasonable means. Your continued use after changes take effect constitutes acceptance of the updated Terms.
+
+      ## 5. Disclaimers and Limitation of Liability
+
+      The Services are provided on an "as is" and "as available" basis without warranties of any kind. To the maximum extent permitted by law, OSOS disclaims all implied warranties and is not liable for any indirect, incidental, consequential, or punitive damages arising from your use of the Services.
+
+      ## 6. Governing Law and Dispute Resolution
+
+      These Terms are governed by the laws of the Sultanate of Oman. Any disputes arising out of or relating to these Terms or the Services shall be subject to the exclusive jurisdiction of the courts of Oman.
+
+      ## 7. Contact
+
+      For questions or support, please visit https://osos.om/.
+
+      By using the Services, you acknowledge that you have read and agree to be bound by these Terms.
+
+  endpointsMenu: true
+  modelSelect: true
+  parameters: true
+  sidePanel: true
+  presets: true
+  prompts: false
+  bookmarks: true
+  multiConvo: true
+  agents: true
+  peoplePicker:
+    users: true
+    groups: true
+    roles: true
+  marketplace:
+      use: true
+  fileCitations: true
+  # Temporary chat retention period in hours (default: 720, min: 1, max: 8760)
+  temporaryChatRetention: 8
+
+# Example Cloudflare turnstile (optional)
+#turnstile:
+#  siteKey: "your-site-key-here"
+#  options:
+#    language: "auto"    # "auto" or an ISO 639-1 language code (e.g. en)
+#    size: "normal"      # Options: "normal", "compact", "flexible", or "invisible"
+
+# Example Registration Object Structure (optional)
+registration:
+  socialLogins: ['github', 'google', 'discord', 'openid', 'facebook', 'apple', 'saml']
+  # allowedDomains:
+  # - "gmail.com"
+
+# Example Balance settings
+# balance:
+#   enabled: false
+#   startBalance: 20000
+#   autoRefillEnabled: false
+#   refillIntervalValue: 30
+#   refillIntervalUnit: 'days'
+#   refillAmount: 10000
+
+# speech:
+#   tts:
+#     openai:
+#       url: ''
+#       apiKey: '${TTS_API_KEY}'
+#       model: ''
+#       voices: ['']
+
+#
+#   stt:
+#     openai:
+#       url: ''
+#       apiKey: '${STT_API_KEY}'
+#       model: ''
+
+# rateLimits:
+#   fileUploads:
+#     ipMax: 100
+#     ipWindowInMinutes: 60  # Rate limit window for file uploads per IP
+#     userMax: 50
+#     userWindowInMinutes: 60  # Rate limit window for file uploads per user
+#   conversationsImport:
+#     ipMax: 100
+#     ipWindowInMinutes: 60  # Rate limit window for conversation imports per IP
+#     userMax: 50
+#     userWindowInMinutes: 60  # Rate limit window for conversation imports per user
+
+# Example Actions Object Structure
+actions:
+  allowedDomains:
+    - 'swapi.dev'
+    - 'librechat.ai'
+    - 'google.com'
+
+# Example MCP Servers Object Structure
+# mcpServers:
+#   everything:
+#     # type: sse # type can optionally be omitted
+#     url: http://localhost:3001/sse
+#     timeout: 60000  # 1 minute timeout for this server, this is the default timeout for MCP servers.
+#   puppeteer:
+#     type: stdio
+#     command: npx
+#     args:
+#       - -y
+#       - "@modelcontextprotocol/server-puppeteer"
+#     timeout: 300000  # 5 minutes timeout for this server
+#   filesystem:
+#     # type: stdio
+#     command: npx
+#     args:
+#       - -y
+#       - "@modelcontextprotocol/server-filesystem"
+#       - /home/user/LibreChat/
+#     iconPath: /home/user/LibreChat/client/public/assets/logo.svg
+#   mcp-obsidian:
+#     command: npx
+#     args:
+#       - -y
+#       - "mcp-obsidian"
+#       - /path/to/obsidian/vault
+
+# Definition of custom endpoints
+endpoints:
+  # Only enable local Ollama endpoint
+  custom:
+    - name: "Ollama"
+      apiKey: "ollama"
+      # use 'host.docker.internal' instead of localhost if running LibreChat in a docker container
+      baseURL: "http://151.104.133.17:5555/v1/" 
+      models:
+        default: [
+          "llama3.1:latest",
+          "llama3.3:70b",
+          "llama3.2:latest",
+          "qwen2.5:72b",
+          "mixtral:8x22b",
+          "phi:2.7b",
+          "aya:latest",
+          "hmgam/acegpt-v2:latest",
+          "iKhalid/ALLaM:7b"
+          ]
+        # fetching list of models is supported but the `name` field must start
+        # with `ollama` (case-insensitive), as it does in this example.
+        fetch: true
+      titleConvo: true
+      titleModel: "current_model"
+      summarize: false
+      summaryModel: "current_model"
+      forcePrompt: false
+      modelDisplayLabel: "Ollama"
+
+# Model Specs Configuration - Define default models for users
+modelSpecs:
+  # Set to true to prioritize model specs over user selections
+  prioritize: true
+  # Set to true to enforce model specs (disable model selection)
+  # enforce: false
+  list:
+    - name: "default-ollama-chat"
+      label: "Default Ollama Chat"
+      default: true
+      description: "Default chat model using Llama 3.1 for general conversations"
+      preset:
+        endpoint: "Ollama"
+        model: "llama3.1:latest"
+        temperature: 0.7
+        max_tokens: 2048
+        greeting: "Hello! I'm your default AI assistant powered by Llama 3.1. How can I help you today?"
+    - name: "fast-response"
+      label: "Fast Response"
+      description: "Quick responses using Phi 2.7B for faster interactions"
+      preset:
+        endpoint: "Ollama"
+        model: "phi:2.7b"
+        temperature: 0.5
+        max_tokens: 1024
+        greeting: "Hi! I'm optimized for quick responses. What do you need help with?"
+    - name: "advanced-reasoning"
+      label: "Advanced Reasoning"
+      description: "Advanced reasoning using Llama 3.3 70B for complex tasks"
+      preset:
+        endpoint: "Ollama"
+        model: "llama3.3:70b"
+        temperature: 0.3
+        max_tokens: 4096
+        greeting: "Hello! I'm equipped for advanced reasoning and complex problem-solving. What challenge can I help you tackle?"
+    
+# fileConfig:
+#   endpoints:
+#     assistants:
+#       fileLimit: 5
+#       fileSizeLimit: 10  # Maximum size for an individual file in MB
+#       totalSizeLimit: 50  # Maximum total size for all files in a single request in MB
+#       supportedMimeTypes:
+#         - "image/.*"
+#         - "application/pdf"
+#     openAI:
+#       disabled: true  # Disables file uploading to the OpenAI endpoint
+#     default:
+#       totalSizeLimit: 20
+#     YourCustomEndpointName:
+#       fileLimit: 2
+#       fileSizeLimit: 5
+#   serverFileSizeLimit: 100  # Global server file size limit in MB
+#   avatarSizeLimit: 2  # Limit for user avatar image size in MB
+#   imageGeneration: # Image Gen settings, either percentage or px
+#     percentage: 100
+#     px: 1024
+#   # Client-side image resizing to prevent upload errors
+#   clientImageResize:
+#     enabled: false  # Enable/disable client-side image resizing (default: false)
+#     maxWidth: 1900  # Maximum width for resized images (default: 1900)
+#     maxHeight: 1900  # Maximum height for resized images (default: 1900)
+#     quality: 0.92  # JPEG quality for compression (0.0-1.0, default: 0.92)
+# # See the Custom Configuration Guide for more information on Assistants Config:
+# # https://www.librechat.ai/docs/configuration/librechat_yaml/object_structure/assistants_endpoint
+
+# Memory configuration for user memories
+# memory:
+#   # (optional) Disable memory functionality
+#   disabled: false
+#   # (optional) Restrict memory keys to specific values to limit memory storage and improve consistency
+#   validKeys: ["preferences", "work_info", "personal_info", "skills", "interests", "context"]
+#   # (optional) Maximum token limit for memory storage (not yet implemented for token counting)
+#   tokenLimit: 10000
+#   # (optional) Enable personalization features (defaults to true if memory is configured)
+#   # When false, users will not see the Personalization tab in settings
+#   personalize: true
+#   # Memory agent configuration - either use an existing agent by ID or define inline
+#   agent:
+#     # Option 1: Use existing agent by ID
+#     id: "your-memory-agent-id"
+#     # Option 2: Define agent inline
+#     # provider: "openai"
+#     # model: "gpt-4o-mini"
+#     # instructions: "You are a memory management assistant. Store and manage user information accurately."
+#     # model_parameters:
+#     #   temperature: 0.1
+
