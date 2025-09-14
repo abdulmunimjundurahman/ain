@@ -42,13 +42,13 @@ interface:
     externalUrl: 'https://osos.om/terms'
     openNewTab: true
     modalAcceptance: true
-    modalTitle: 'Terms of Service for OSOS'
+    modalTitle: 'Terms of Service for AIN'
     modalContent: |
-      # Terms and Conditions for OSOS AI
+      # Terms and Conditions for AIN
 
       Effective Date: September 2, 2025
 
-      Welcome to OSOS AI, available at https://osos.om. These Terms of Service ("Terms") govern your access to and use of OSOS AI and related services (collectively, the "Services"). By using the Services, you agree to these Terms and to our Privacy Policy available at https://osos.om/privacy.
+      Welcome to AIN, available at https://osos.om. These Terms of Service ("Terms") govern your access to and use of OSOS AI and related services (collectively, the "Services"). By using the Services, you agree to these Terms and to our Privacy Policy available at https://osos.om/privacy.
 
       ## 1. Ownership and License
 
@@ -221,9 +221,9 @@ modelSpecs:
   # enforce: false
   list:
     - name: "default-ollama-chat"
-      label: "Default Ollama Chat"
+      label: "Default Chat"
       default: true
-      description: "Default chat model using Llama 3.1 for general conversations"
+      description: "Default chat model using for general conversations"
       preset:
         endpoint: "Ollama"
         model: "llama3.1:latest"
