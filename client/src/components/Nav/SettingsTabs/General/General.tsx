@@ -131,6 +131,7 @@ function General() {
   const { theme, setTheme } = useContext(ThemeContext);
 
   const [langcode, setLangcode] = useRecoilState(store.lang);
+  const [chatDirection, setChatDirection] = useRecoilState(store.chatDirection);
 
   const changeTheme = useCallback(
     (value: string) => {
@@ -146,13 +147,21 @@ function General() {
         userLang = navigator.language || navigator.languages[0];
       }
 
+      // Auto-set RTL direction for Arabic and other RTL languages
+      const rtlLanguages = ['ar', 'ar-EG', 'ar-SA', 'ar-AE', 'ar-QA', 'ar-KW', 'ar-BH', 'ar-OM', 'ar-YE', 'ar-IQ', 'ar-SY', 'ar-JO', 'ar-LB', 'ar-PS', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-LY', 'ar-SD', 'ar-EG', 'he', 'he-IL', 'fa', 'fa-IR', 'ug', 'ug-CN'];
+      const isRTL = rtlLanguages.some(lang => userLang.startsWith(lang));
+      
+      // Set chat direction based on language
+      setChatDirection(isRTL ? 'RTL' : 'LTR');
+
       requestAnimationFrame(() => {
         document.documentElement.lang = userLang;
+        document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
       });
       setLangcode(userLang);
       Cookies.set('lang', userLang, { expires: 365 });
     },
-    [setLangcode],
+    [setLangcode, setChatDirection],
   );
 
   return (

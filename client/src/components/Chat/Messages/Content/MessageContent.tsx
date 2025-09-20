@@ -72,6 +72,8 @@ export const ErrorMessage = ({
 const DisplayMessage = ({ text, isCreatedByUser, message, showCursor }: TDisplayProps) => {
   const { isSubmitting, latestMessage } = useChatContext();
   const enableUserMsgMarkdown = useRecoilValue(store.enableUserMsgMarkdown);
+  const chatDirection = useRecoilValue(store.chatDirection);
+  const isRTL = chatDirection?.toLowerCase() === 'rtl';
   const showCursorState = useMemo(
     () => showCursor === true && isSubmitting,
     [showCursor, isSubmitting],
@@ -99,7 +101,9 @@ const DisplayMessage = ({ text, isCreatedByUser, message, showCursor }: TDisplay
           'markdown prose message-content dark:prose-invert light w-full break-words',
           isCreatedByUser && !enableUserMsgMarkdown && 'whitespace-pre-wrap',
           isCreatedByUser ? 'dark:text-gray-20' : 'dark:text-gray-100',
+          isRTL ? 'text-right' : 'text-left',
         )}
+        dir={isRTL ? 'rtl' : 'ltr'}
       >
         {content}
       </div>

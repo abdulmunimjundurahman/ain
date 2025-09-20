@@ -5,6 +5,7 @@ import { QueryKeys, Constants } from 'librechat-data-provider';
 import { TooltipAnchor, NewChatIcon, MobileSidebar, Sidebar, Button } from '@librechat/client';
 import type { TMessage } from 'librechat-data-provider';
 import { useLocalize, useNewConvo } from '~/hooks';
+import LanguageSwitcher from './LanguageSwitcher';
 import store from '~/store';
 
 export default function NewChat({
@@ -68,6 +69,8 @@ export default function NewChat({
         />
         <div className="flex gap-0.5">
           {headerButtons}
+          
+          <LanguageSwitcher />
 
           <TooltipAnchor
             description={localize('com_ui_new_chat')}

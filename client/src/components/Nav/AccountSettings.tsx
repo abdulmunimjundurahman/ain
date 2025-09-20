@@ -8,6 +8,7 @@ import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize } from '~/hooks';
 import Settings from './Settings';
+import LanguageSwitcher from './LanguageSwitcher';
 import store from '~/store';
 
 function AccountSettings() {
@@ -86,6 +87,9 @@ function AccountSettings() {
           <GearIcon className="icon-md" aria-hidden="true" />
           {localize('com_nav_settings')}
         </Select.SelectItem>
+        <div className="px-3 py-2">
+          <LanguageSwitcher />
+        </div>
         <DropdownMenuSeparator />
         <Select.SelectItem
           aria-selected={true}

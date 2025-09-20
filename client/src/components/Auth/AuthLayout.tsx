@@ -6,6 +6,7 @@ import SocialLoginRender from './SocialLoginRender';
 import { BlinkAnimation } from './BlinkAnimation';
 import { Banner } from '../Banners';
 import Footer from './Footer';
+import LanguageSwitcher from '../Nav/LanguageSwitcher';
 
 function AuthLayout({
   children,
@@ -69,7 +70,8 @@ function AuthLayout({
         </div>
       </BlinkAnimation>
       <DisplayError />
-      <div className="absolute bottom-0 left-0 md:m-4">
+      <div className="absolute bottom-0 left-0 md:m-4 flex gap-2">
+        <LanguageSwitcher />
         <ThemeSelector />
       </div>
 

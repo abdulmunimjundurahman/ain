@@ -2,6 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* RTL Support - Text Direction Only */
+[dir="rtl"] {
+  text-align: right;
+}
+
+/* Only apply RTL to specific text elements, not layout containers */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* RTL for input fields and text areas */
+[dir="rtl"] input,
+[dir="rtl"] textarea {
+  text-align: right;
+}
+
+/* RTL for specific chat components that need it */
+[dir="rtl"] .chat-message {
+  text-align: right;
+}
+
+[dir="rtl"] .message-content {
+  text-align: right;
+}
+
+/* RTL for navigation text only */
+[dir="rtl"] .nav-text {
+  text-align: right;
+}
+
+/* RTL for form labels */
+[dir="rtl"] label {
+  text-align: right;
+}
+
+/* RTL for specific flex containers that should reverse (like chat input) */
+[dir="rtl"] .chat-input-container {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .message-actions {
+  flex-direction: row-reverse;
+}
+
 /* Custom Variables */
 :root {
   --white: #fff;
