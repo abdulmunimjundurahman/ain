@@ -16,18 +16,35 @@ const getLogStores = require('~/cache/getLogStores');
 
 const projectRoot = path.resolve(__dirname, '..', '..', '..', '..');
 const defaultConfigPath = path.resolve(projectRoot, 'librechat.yaml');
+const arabicConfigPath = path.resolve(projectRoot, 'librechat-ar.yaml');
 
 let i = 0;
+
+/**
+ * Get the appropriate config path based on language preference
+ * @function getConfigPath
+ * @param {string} language - The language code (e.g., 'ar-EG', 'en-US')
+ * @returns {string} The path to the appropriate config file
+ */
+function getConfigPath(language = 'en-US') {
+  // Check if Arabic language is requested
+  if (language && language.startsWith('ar')) {
+    return arabicConfigPath;
+  }
+  return defaultConfigPath;
+}
 
 /**
  * Load custom configuration files and caches the object if the `cache` field at root is true.
  * Validation via parsing the config file with the config schema.
  * @function loadCustomConfig
+ * @param {boolean} printConfig - Whether to print config information
+ * @param {string} language - The language code to determine which config to load
  * @returns {Promise<TCustomConfig | null>} A promise that resolves to null or the custom config object.
  * */
-async function loadCustomConfig(printConfig = true) {
-  // Use CONFIG_PATH if set, otherwise fallback to defaultConfigPath
-  const configPath = process.env.CONFIG_PATH || defaultConfigPath;
+async function loadCustomConfig(printConfig = true, language = 'en-US') {
+  // Use CONFIG_PATH if set, otherwise use language-specific config
+  const configPath = process.env.CONFIG_PATH || getConfigPath(language);
 
   let customConfig;
 
@@ -179,4 +196,4 @@ function parseCustomParams(endpointName, customParams) {
   }
 }
 
-module.exports = loadCustomConfig;
+module.exports = { loadCustomConfig, getConfigPath };
