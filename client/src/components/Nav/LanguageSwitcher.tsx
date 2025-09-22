@@ -2,7 +2,9 @@ import React, { useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import { Globe } from 'lucide-react';
 import { useLocalize } from '~/hooks';
+import { setAcceptLanguageHeader } from 'librechat-data-provider';
 import store from '~/store';
+import Cookies from 'js-cookie';
 
 interface LanguageSwitcherProps {
   onLanguageChange?: () => void;
@@ -32,6 +34,10 @@ const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ onLanguageChange })
         document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
       });
       setLangcode(userLang);
+      Cookies.set('lang', userLang, { expires: 365 });
+      
+      // Set language header for API requests
+      setAcceptLanguageHeader(userLang);
       
       // Call the callback if provided
       if (onLanguageChange) {

@@ -31,10 +31,11 @@ const paths = require('~/config/paths');
 /**
  * Loads custom config and initializes app-wide variables.
  * @function AppService
+ * @param {string} [language] - Language code for language-specific config
  */
-const AppService = async () => {
+const AppService = async (language = 'en-US') => {
   /** @type {TCustomConfig} */
-  const config = (await loadCustomConfig()) ?? {};
+  const config = (await loadCustomConfig(true, language)) ?? {};
   const configDefaults = getConfigDefaults();
 
   const ocr = loadOCRConfig(config.ocr);

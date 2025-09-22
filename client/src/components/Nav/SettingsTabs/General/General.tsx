@@ -2,6 +2,7 @@ import React, { useContext, useCallback } from 'react';
 import Cookies from 'js-cookie';
 import { useRecoilState } from 'recoil';
 import { Dropdown, ThemeContext } from '@librechat/client';
+import { setAcceptLanguageHeader } from 'librechat-data-provider';
 import ArchivedChats from './ArchivedChats';
 import ToggleSwitch from '../ToggleSwitch';
 import { useLocalize } from '~/hooks';
@@ -160,6 +161,9 @@ function General() {
       });
       setLangcode(userLang);
       Cookies.set('lang', userLang, { expires: 365 });
+      
+      // Set language header for API requests
+      setAcceptLanguageHeader(userLang);
     },
     [setLangcode, setChatDirection],
   );

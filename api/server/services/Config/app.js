@@ -8,14 +8,16 @@ const getLogStores = require('~/cache/getLogStores');
  * Get the app configuration based on user context
  * @param {Object} [options]
  * @param {string} [options.role] - User role for role-based config
+ * @param {string} [options.language] - User language for language-specific config
  * @param {boolean} [options.refresh] - Force refresh the cache
  * @returns {Promise<AppConfig>}
  */
 async function getAppConfig(options = {}) {
-  const { role, refresh } = options;
+  const { role, language, refresh } = options;
 
   const cache = getLogStores(CacheKeys.CONFIG_STORE);
-  const cacheKey = role ? `${CacheKeys.APP_CONFIG}:${role}` : CacheKeys.APP_CONFIG;
+  const languageKey = language ? `:${language}` : '';
+  const cacheKey = role ? `${CacheKeys.APP_CONFIG}:${role}${languageKey}` : `${CacheKeys.APP_CONFIG}${languageKey}`;
 
   if (!refresh) {
     const cached = await cache.get(cacheKey);
@@ -27,7 +29,7 @@ async function getAppConfig(options = {}) {
   let baseConfig = await cache.get(CacheKeys.APP_CONFIG);
   if (!baseConfig) {
     logger.info('[getAppConfig] App configuration not initialized. Initializing AppService...');
-    baseConfig = await AppService();
+    baseConfig = await AppService(language);
 
     if (!baseConfig) {
       throw new Error('Failed to initialize app configuration through AppService.');

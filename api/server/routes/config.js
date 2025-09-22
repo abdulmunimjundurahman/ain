@@ -48,7 +48,9 @@ router.get('/', async function (req, res) {
   const ldap = getLdapConfig();
 
   try {
-    const appConfig = await getAppConfig({ role: req.user?.role });
+    // Get user language from request headers
+    const userLanguage = req.headers['x-user-language'] || req.headers['accept-language'] || 'en-US';
+    const appConfig = await getAppConfig({ role: req.user?.role, language: userLanguage });
 
     const isOpenIdEnabled =
       !!process.env.OPENID_CLIENT_ID &&

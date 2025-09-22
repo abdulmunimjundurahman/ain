@@ -1,14 +1,16 @@
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useRecoilState } from 'recoil';
 import * as Select from '@ariakit/react/select';
 import { FileText, LogOut, Globe } from 'lucide-react';
 import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
+import { setAcceptLanguageHeader } from 'librechat-data-provider';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize } from '~/hooks';
 import Settings from './Settings';
 import store from '~/store';
+import Cookies from 'js-cookie';
 
 function AccountSettings() {
   const localize = useLocalize();
@@ -19,6 +21,43 @@ function AccountSettings() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [showFiles, setShowFiles] = useRecoilState(store.showFiles);
+  const [langcode, setLangcode] = useRecoilState(store.lang);
+  const [chatDirection, setChatDirection] = useRecoilState(store.chatDirection);
+
+  const changeLang = useCallback(
+    (value: string) => {
+      let userLang = value;
+      if (value === 'auto') {
+        userLang = navigator.language || navigator.languages[0];
+      }
+
+      // Auto-set RTL direction for Arabic and other RTL languages
+      const rtlLanguages = ['ar', 'ar-EG', 'ar-SA', 'ar-AE', 'ar-QA', 'ar-KW', 'ar-BH', 'ar-OM', 'ar-YE', 'ar-IQ', 'ar-SY', 'ar-JO', 'ar-LB', 'ar-PS', 'ar-MA', 'ar-DZ', 'ar-TN', 'ar-LY', 'ar-SD', 'ar-EG', 'he', 'he-IL', 'fa', 'fa-IR', 'ug', 'ug-CN'];
+      const isRTL = rtlLanguages.some(lang => userLang.startsWith(lang));
+      
+      // Set chat direction based on language
+      setChatDirection(isRTL ? 'RTL' : 'LTR');
+
+      requestAnimationFrame(() => {
+        document.documentElement.lang = userLang;
+        document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+      });
+      setLangcode(userLang);
+      Cookies.set('lang', userLang, { expires: 365 });
+      
+      // Set language header for API requests
+      setAcceptLanguageHeader(userLang);
+    },
+    [setLangcode, setChatDirection],
+  );
+
+  const toggleLanguage = useCallback(() => {
+    if (langcode === 'ar-EG') {
+      changeLang('en-US');
+    } else {
+      changeLang('ar-EG');
+    }
+  }, [langcode, changeLang]);
 
   return (
     <Select.SelectProvider>
@@ -88,31 +127,11 @@ function AccountSettings() {
         </Select.SelectItem>
         <Select.SelectItem
           value=""
-          onClick={() => {
-            // Toggle language using proper i18n mechanism
-            const currentLang = localStorage.getItem('lang') || 'en-US';
-            const newLang = currentLang === 'ar-EG' ? 'en-US' : 'ar-EG';
-            
-            // Set language in localStorage
-            localStorage.setItem('lang', newLang);
-            
-            // Update document attributes
-            document.documentElement.lang = newLang;
-            
-            // Set RTL direction for Arabic
-            const isRTL = newLang.startsWith('ar');
-            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
-            
-            // Trigger language change event for i18n
-            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: newLang } }));
-            
-            // Reload to apply changes
-            window.location.reload();
-          }}
+          onClick={toggleLanguage}
           className="select-item text-sm"
         >
           <Globe className="icon-md" aria-hidden="true" />
-          {localize('com_nav_language')} → {localize('com_nav_lang_arabic') === 'العربية' ? 'English' : 'العربية'}
+          {localize('com_nav_language')} → {langcode === 'ar-EG' ? 'English' : 'العربية'}
         </Select.SelectItem>
         <DropdownMenuSeparator />
         <Select.SelectItem
