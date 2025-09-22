@@ -37,7 +37,7 @@ export default function Footer({ className }: { className?: string }) {
   const mainContentParts = (
     typeof config?.customFooter === 'string'
       ? config.customFooter
-      : '[AIN - OSOS](https://osos.om) - ' +
+      : '[OSOS-AIN](https://osos.om) - ' +
         localize('com_ui_latest_footer')
   ).split('|');
 
