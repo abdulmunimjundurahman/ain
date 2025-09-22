@@ -110,7 +110,7 @@ describe('AppService', () => {
     siteKey: 'default-site-key',
     options: {},
   };
-  const loadCustomConfig = require('./Config/loadCustomConfig');
+  const { loadCustomConfig } = require('./Config/loadCustomConfig');
 
   beforeEach(() => {
     process.env.CDN_PROVIDER = undefined;
@@ -784,7 +784,7 @@ describe('AppService', () => {
 
 describe('AppService updating app config and issuing warnings', () => {
   let initialEnv;
-  const loadCustomConfig = require('./Config/loadCustomConfig');
+  const { loadCustomConfig } = require('./Config/loadCustomConfig');
 
   beforeEach(() => {
     // Store initial environment variables to restore them after each test

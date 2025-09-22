@@ -47,7 +47,7 @@ jest.mock('@librechat/data-schemas', () => {
 const axios = require('axios');
 const { loadYaml } = require('@librechat/api');
 const { logger } = require('@librechat/data-schemas');
-const loadCustomConfig = require('./loadCustomConfig');
+const { loadCustomConfig } = require('./loadCustomConfig');
 const getLogStores = require('~/cache/getLogStores');
 
 describe('loadCustomConfig', () => {

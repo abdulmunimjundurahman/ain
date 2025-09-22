@@ -20,7 +20,7 @@ const {
 const { initializeAzureBlobService } = require('./Files/Azure/initialize');
 const { initializeFirebase } = require('./Files/Firebase/initialize');
 const handleRateLimits = require('./Config/handleRateLimits');
-const loadCustomConfig = require('./Config/loadCustomConfig');
+const { loadCustomConfig } = require('./Config/loadCustomConfig');
 const { loadTurnstileConfig } = require('./start/turnstile');
 const { processModelSpecs } = require('./start/modelSpecs');
 const { initializeS3 } = require('./Files/S3/initialize');

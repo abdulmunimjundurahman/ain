@@ -32,7 +32,7 @@ describe('AppService interface configuration', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
-    mockLoadCustomConfig = require('./Config/loadCustomConfig');
+    mockLoadCustomConfig = require('./Config/loadCustomConfig').loadCustomConfig;
   });
 
   it('should set prompts and bookmarks to true when loadDefaultInterface returns true for both', async () => {
