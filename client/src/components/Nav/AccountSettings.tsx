@@ -1,14 +1,13 @@
 import { useState, memo } from 'react';
 import { useRecoilState } from 'recoil';
 import * as Select from '@ariakit/react/select';
-import { FileText, LogOut } from 'lucide-react';
+import { FileText, LogOut, Globe } from 'lucide-react';
 import { LinkIcon, GearIcon, DropdownMenuSeparator, Avatar } from '@librechat/client';
 import { useGetStartupConfig, useGetUserBalance } from '~/data-provider';
 import FilesView from '~/components/Chat/Input/Files/FilesView';
 import { useAuthContext } from '~/hooks/AuthContext';
 import { useLocalize } from '~/hooks';
 import Settings from './Settings';
-import LanguageSwitcher from './LanguageSwitcher';
 import store from '~/store';
 
 function AccountSettings() {
@@ -87,9 +86,20 @@ function AccountSettings() {
           <GearIcon className="icon-md" aria-hidden="true" />
           {localize('com_nav_settings')}
         </Select.SelectItem>
-        <div className="px-3 py-2">
-          <LanguageSwitcher />
-        </div>
+        <Select.SelectItem
+          value=""
+          onClick={() => {
+            // Toggle language
+            const currentLang = localStorage.getItem('lang') || 'en-US';
+            const newLang = currentLang === 'ar-EG' ? 'en-US' : 'ar-EG';
+            localStorage.setItem('lang', newLang);
+            window.location.reload();
+          }}
+          className="select-item text-sm"
+        >
+          <Globe className="icon-md" aria-hidden="true" />
+          {localize('com_nav_language')}
+        </Select.SelectItem>
         <DropdownMenuSeparator />
         <Select.SelectItem
           aria-selected={true}
