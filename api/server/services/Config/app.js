@@ -28,7 +28,7 @@ async function getAppConfig(options = {}) {
 
   let baseConfig = await cache.get(CacheKeys.APP_CONFIG);
   if (!baseConfig) {
-    logger.info('[getAppConfig] App configuration not initialized. Initializing AppService...');
+    logger.info(`[getAppConfig] App configuration not initialized. Initializing AppService with language: ${language}...`);
     baseConfig = await AppService(language);
 
     if (!baseConfig) {

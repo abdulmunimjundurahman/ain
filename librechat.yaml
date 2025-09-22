@@ -27,7 +27,7 @@ fileStrategy: "local"
 
 # Custom interface configuration
 interface:
-  customWelcome: 'Welcome to AIN! Enjoy your private AI experience.'
+  customWelcome: 'مرحباً بك في AIN! استمتع بتجربة الذكاء الاصطناعي الخاصة بك.'
   # Enable/disable file search as a chatarea selection (default: true)
   # Note: This setting does not disable the Agents File Search Capability.
   # To disable the Agents Capability, see the Agents Endpoint configuration instead.
@@ -221,33 +221,33 @@ modelSpecs:
   # enforce: false
   list:
     - name: "default-ollama-chat"
-      label: "Default Chat"
+      label: "المحادثة الافتراضية"
       default: true
-      description: "Default chat model using for general conversations"
+      description: "نموذج المحادثة الافتراضي المستخدم للمحادثات العامة"
       preset:
         endpoint: "Ollama"
         model: "llama3.1:latest"
         temperature: 0.7
         max_tokens: 2048
-        greeting: "Hello! I'm your default AI assistant powered by Llama 3.1. How can I help you today?"
+        greeting: "مرحباً! أنا مساعدك الذكي المدعوم بـ Llama 3.1. كيف يمكنني مساعدتك اليوم؟"
     - name: "fast-response"
-      label: "Fast Response"
-      description: "Quick responses using Phi 2.7B for faster interactions"
+      label: "استجابة سريعة"
+      description: "استجابات سريعة باستخدام Phi 2.7B للتفاعلات الأسرع"
       preset:
         endpoint: "Ollama"
         model: "phi:2.7b"
         temperature: 0.5
         max_tokens: 1024
-        greeting: "Hi! I'm optimized for quick responses. What do you need help with?"
+        greeting: "مرحباً! أنا محسّن للاستجابات السريعة. ما الذي تحتاج مساعدة فيه؟"
     - name: "advanced-reasoning"
-      label: "Advanced Reasoning"
-      description: "Advanced reasoning using Llama 3.3 70B for complex tasks"
+      label: "الاستدلال المتقدم"
+      description: "استدلال متقدم باستخدام Llama 3.3 70B للمهام المعقدة"
       preset:
         endpoint: "Ollama"
         model: "llama3.3:70b"
         temperature: 0.3
         max_tokens: 4096
-        greeting: "Hello! I'm equipped for advanced reasoning and complex problem-solving. What challenge can I help you tackle?"
+        greeting: "مرحباً! أنا مجهز للاستدلال المتقدم وحل المشاكل المعقدة. ما التحدي الذي يمكنني مساعدتك في مواجهته؟"
     
 # fileConfig:
 #   endpoints:

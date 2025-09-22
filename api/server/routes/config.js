@@ -49,7 +49,39 @@ router.get('/', async function (req, res) {
 
   try {
     // Get user language from request headers
-    const userLanguage = req.headers['x-user-language'] || req.headers['accept-language'] || 'en-US';
+    let userLanguage = req.headers['x-user-language'] || 'en-US';
+    
+    // If no explicit language header, parse Accept-Language
+    if (!req.headers['x-user-language'] && req.headers['accept-language']) {
+      const acceptLanguage = req.headers['accept-language'];
+      // Parse accept-language header (e.g., "ar-EG,ar;q=0.9,en;q=0.8")
+      const languages = acceptLanguage.split(',').map(lang => {
+        const [code, quality] = lang.trim().split(';q=');
+        return { code: code.trim(), quality: quality ? parseFloat(quality) : 1.0 };
+      });
+      
+      // Sort by quality and find the first Arabic or English language
+      languages.sort((a, b) => b.quality - a.quality);
+      
+      for (const lang of languages) {
+        if (lang.code.startsWith('ar')) {
+          userLanguage = 'ar-EG';
+          break;
+        }
+        if (lang.code.startsWith('en')) {
+          userLanguage = 'en-US';
+          break;
+        }
+      }
+    }
+    
+    // Debug logging
+    console.log('Language detection:', {
+      'x-user-language': req.headers['x-user-language'],
+      'accept-language': req.headers['accept-language'],
+      'detected-language': userLanguage
+    });
+    
     const appConfig = await getAppConfig({ role: req.user?.role, language: userLanguage });
 
     const isOpenIdEnabled =

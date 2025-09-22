@@ -30,6 +30,7 @@ services:
       - ./uploads:/app/uploads
       - ./logs:/app/api/logs
       - ./librechat.yaml:/app/librechat.yaml
+      - ./librechat-ar.yaml:/app/librechat-ar.yaml
   
   mongodb:
     container_name: chat-mongodb
