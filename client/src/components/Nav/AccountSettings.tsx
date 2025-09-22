@@ -89,16 +89,30 @@ function AccountSettings() {
         <Select.SelectItem
           value=""
           onClick={() => {
-            // Toggle language
+            // Toggle language using proper i18n mechanism
             const currentLang = localStorage.getItem('lang') || 'en-US';
             const newLang = currentLang === 'ar-EG' ? 'en-US' : 'ar-EG';
+            
+            // Set language in localStorage
             localStorage.setItem('lang', newLang);
+            
+            // Update document attributes
+            document.documentElement.lang = newLang;
+            
+            // Set RTL direction for Arabic
+            const isRTL = newLang.startsWith('ar');
+            document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+            
+            // Trigger language change event for i18n
+            window.dispatchEvent(new CustomEvent('languageChanged', { detail: { language: newLang } }));
+            
+            // Reload to apply changes
             window.location.reload();
           }}
           className="select-item text-sm"
         >
           <Globe className="icon-md" aria-hidden="true" />
-          {localize('com_nav_language')}
+          {localize('com_nav_language')} → {localize('com_nav_lang_arabic') === 'العربية' ? 'English' : 'العربية'}
         </Select.SelectItem>
         <DropdownMenuSeparator />
         <Select.SelectItem
