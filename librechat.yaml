@@ -27,7 +27,7 @@ fileStrategy: "local"
 
 # Custom interface configuration
 interface:
-  customWelcome: 'مرحباً بك في AIN! استمتع بتجربة الذكاء الاصطناعي الخاصة بك.'
+  customWelcome: 'Welcome to AIN! Enjoy your Private AI experience.'
   # Enable/disable file search as a chatarea selection (default: true)
   # Note: This setting does not disable the Agents File Search Capability.
   # To disable the Agents Capability, see the Agents Endpoint configuration instead.
@@ -217,38 +217,39 @@ endpoints:
 modelSpecs:
   # Set to true to prioritize model specs over user selections
   prioritize: true
-  # Set to true to enforce model specs (disable model selection)
+  # Set to true to enforce model specs (disables manual model selection)
   # enforce: false
   list:
     - name: "default-ollama-chat"
-      label: "المحادثة الافتراضية"
+      label: "Default Chat"
       default: true
-      description: "نموذج المحادثة الافتراضي المستخدم للمحادثات العامة"
+      description: "The default chat model used for general conversations."
       preset:
         endpoint: "Ollama"
         model: "llama3.1:latest"
         temperature: 0.7
         max_tokens: 2048
-        greeting: "مرحباً! أنا مساعدك الذكي المدعوم بـ Llama 3.1. كيف يمكنني مساعدتك اليوم؟"
+        greeting: "Hello! I’m your smart assistant powered by Llama 3.1. How can I help you today?"
     - name: "fast-response"
-      label: "استجابة سريعة"
-      description: "استجابات سريعة باستخدام Phi 2.7B للتفاعلات الأسرع"
+      label: "Fast Response"
+      description: "Quick replies using Phi 2.7B for faster interactions."
       preset:
         endpoint: "Ollama"
         model: "phi:2.7b"
         temperature: 0.5
         max_tokens: 1024
-        greeting: "مرحباً! أنا محسّن للاستجابات السريعة. ما الذي تحتاج مساعدة فيه؟"
+        greeting: "Hi! I’m optimized for fast responses. What can I help you with?"
     - name: "advanced-reasoning"
-      label: "الاستدلال المتقدم"
-      description: "استدلال متقدم باستخدام Llama 3.3 70B للمهام المعقدة"
+      label: "Advanced Reasoning"
+      description: "Deep reasoning with Llama 3.3 70B for complex tasks."
       preset:
         endpoint: "Ollama"
         model: "llama3.3:70b"
         temperature: 0.3
         max_tokens: 4096
-        greeting: "مرحباً! أنا مجهز للاستدلال المتقدم وحل المشاكل المعقدة. ما التحدي الذي يمكنني مساعدتك في مواجهته؟"
-    
+        greeting: "Hello! I’m equipped for advanced reasoning and solving complex problems. What challenge can I help you tackle?"
+
+
 # fileConfig:
 #   endpoints:
 #     assistants:
