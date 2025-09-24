@@ -115,9 +115,19 @@ const conversationByIndex = atomFamily<TConversation | null, string | number>({
           (oldValue as TConversation)?.conversationId === Constants.NEW_CONVO;
 
         if (shouldUpdateParams) {
+          try {
+            console.groupCollapsed('[store] conversationByIndex effect: updating URL params');
+            console.log('newValue:', newValue);
+            console.log('oldValue:', oldValue);
+          } catch (_) {}
           const newParams = createChatSearchParams(newValue);
           const searchParams = createSearchParams(newParams);
           const url = `${window.location.pathname}?${searchParams.toString()}`;
+          try {
+            console.log('computed params:', newParams.toString());
+            console.log('pushing url:', url);
+            console.groupEnd?.();
+          } catch (_) {}
           window.history.pushState({}, '', url);
         }
       });

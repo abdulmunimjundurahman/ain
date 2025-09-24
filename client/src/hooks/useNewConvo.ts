@@ -8,6 +8,7 @@ import {
   isParamEndpoint,
   LocalStorageKeys,
   isAssistantsEndpoint,
+  isAgentsEndpoint,
 } from 'librechat-data-provider';
 import { useRecoilState, useRecoilValue, useSetRecoilState, useRecoilCallback } from 'recoil';
 import type {
@@ -75,7 +76,20 @@ const useNewConvo = (index = 0) => {
       ) => {
         const modelsConfig = modelsData ?? modelsQuery.data;
         const { endpoint = null } = conversation;
-        const buildDefaultConversation = (endpoint === null || buildDefault) ?? false;
+        // If a param endpoint is explicitly selected with an identifier, do NOT build defaults.
+        const hasParamIdentifier =
+          (isAgentsEndpoint(endpoint as any) && !!conversation.agent_id) ||
+          (isAssistantsEndpoint(endpoint as any) && !!conversation.assistant_id);
+        const buildDefaultConversation = hasParamIdentifier
+          ? false
+          : (endpoint === null || buildDefault) ?? false;
+        try {
+          console.log('[useNewConvo] switchToConversation:', {
+            endpoint,
+            hasParamIdentifier,
+            buildDefaultConversation,
+          });
+        } catch (_) {}
         const activePreset =
           // use default preset only when it's defined,
           // preset is not provided,
@@ -227,6 +241,17 @@ const useNewConvo = (index = 0) => {
       keepAddedConvos?: boolean;
       disableParams?: boolean;
     } = {}) {
+      console.groupCollapsed('[useNewConvo] createNewConvo');
+      console.log('args:', {
+        _template,
+        _preset,
+        modelsData,
+        disableFocus,
+        buildDefault,
+        keepLatestMessage,
+        keepAddedConvos,
+        disableParams,
+      });
       pauseGlobalAudio();
       if (!saveBadgesState) {
         resetBadges();
@@ -236,10 +261,19 @@ const useNewConvo = (index = 0) => {
       const paramEndpoint =
         isParamEndpoint(_template.endpoint ?? '', _template.endpointType ?? '') === true ||
         isParamEndpoint(_preset?.endpoint ?? '', _preset?.endpointType ?? '');
+      // Preserve identifier fields (e.g., agent_id/assistant_id) when explicitly provided
+      // so selecting an agent/assistant for a new chat doesn't get stripped to just the endpoint.
+      const hasParamIdentifier = (_template as any)?.agent_id || (_template as any)?.assistant_id;
       const template =
-        paramEndpoint === true && templateConvoId && templateConvoId === Constants.NEW_CONVO
+        paramEndpoint === true &&
+        templateConvoId &&
+        templateConvoId === Constants.NEW_CONVO &&
+        !hasParamIdentifier
           ? { endpoint: _template.endpoint }
           : _template;
+      console.log('paramEndpoint:', paramEndpoint);
+      console.log('hasParamIdentifier:', Boolean(hasParamIdentifier));
+      console.log('normalized template:', template);
 
       const conversation = {
         conversationId: Constants.NEW_CONVO as string,
@@ -249,6 +283,7 @@ const useNewConvo = (index = 0) => {
         createdAt: '',
         updatedAt: '',
       };
+      console.log('initial conversation object:', conversation);
 
       let preset = _preset;
       const defaultModelSpec = getDefaultModelSpec(startupConfig);
@@ -297,6 +332,7 @@ const useNewConvo = (index = 0) => {
         disableFocus,
         disableParams,
       );
+      console.groupEnd();
     },
     [
       files,

@@ -44,32 +44,44 @@ const AgentDetail: React.FC<AgentDetailProps> = ({ agent, isOpen, onClose }) => 
    * Navigate to chat with the selected agent
    */
   const handleStartChat = () => {
+    console.groupCollapsed('[AgentDetail] handleStartChat');
+    console.log('agent:', agent);
+    console.log('current conversation (pre-start):', conversation);
     if (agent) {
       const keys = [QueryKeys.agents, { requiredPermission: PermissionBits.EDIT }];
       const listResp = queryClient.getQueryData<AgentListResponse>(keys);
+      console.log('query keys:', keys);
+      console.log('agents list from cache:', listResp);
       if (listResp != null) {
         if (!listResp.data.some((a) => a.id === agent.id)) {
           const currentAgents = [agent, ...JSON.parse(JSON.stringify(listResp.data))];
           queryClient.setQueryData<AgentListResponse>(keys, { ...listResp, data: currentAgents });
+          console.log('updated agents list in cache with selected agent');
         }
       }
 
       localStorage.setItem(`${LocalStorageKeys.AGENT_ID_PREFIX}0`, agent.id);
+      console.log('set localStorage agent id:', `${LocalStorageKeys.AGENT_ID_PREFIX}0`, agent.id);
 
       queryClient.setQueryData<t.TMessage[]>(
         [QueryKeys.messages, conversation?.conversationId ?? Constants.NEW_CONVO],
         [],
       );
       queryClient.invalidateQueries([QueryKeys.messages]);
+      console.log('cleared messages and invalidated messages query');
 
-      newConversation({
+      const template = {
         template: {
           conversationId: Constants.NEW_CONVO as string,
           endpoint: EModelEndpoint.agents,
           agent_id: agent.id,
           title: `Chat with ${agent.name || 'Agent'}`,
         },
-      });
+      } as const;
+      console.log('calling newConversation with:', template);
+      // Avoid building defaults so the selected agent stays active
+      newConversation({ ...template, buildDefault: false });
+      console.groupEnd();
     }
   };
 
