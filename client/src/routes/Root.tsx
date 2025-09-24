@@ -20,6 +20,7 @@ import { TermsAndConditionsModal } from '~/components/ui';
 import { Nav, MobileNav } from '~/components/Nav';
 import { useHealthCheck } from '~/data-provider';
 import { Banner } from '~/components/Banners';
+import GlobalUploadProgress from '~/components/Chat/Input/Files/GlobalUploadProgress';
 
 export default function Root() {
   const [showTerms, setShowTerms] = useState(false);
@@ -92,6 +93,7 @@ export default function Root() {
               modalContent={config.interface.termsOfService.modalContent}
             />
           )}
+          <GlobalUploadProgress />
         </AssistantsMapContext.Provider>
       </FileMapContext.Provider>
     </SetConvoProvider>

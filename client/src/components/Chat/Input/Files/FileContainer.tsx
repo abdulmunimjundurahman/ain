@@ -5,6 +5,7 @@ import type { ExtendedFile } from '~/common';
 import { getFileType, cn } from '~/utils';
 import FilePreview from './FilePreview';
 import RemoveFile from './RemoveFile';
+import RealTimeProgressBar from './RealTimeProgressBar';
 
 const FileContainer = ({
   file,
@@ -52,17 +53,30 @@ const FileContainer = ({
             </div>
           </div>
         </div>
-        {/* Linear progress bar at bottom */}
+        {/* Enhanced progress bar with real-time updates */}
         {typeof file.progress === 'number' && file.progress < 1 && (
-          <div className="absolute bottom-0 left-0 h-1 w-full bg-surface-secondary">
-            <div
-              className="h-1 bg-primary transition-[width] duration-150 ease-linear"
-              style={{ width: `${Math.round((file.progress ?? 0) * 100)}%` }}
-              role="progressbar"
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={Math.round((file.progress ?? 0) * 100)}
-            />
+          <div className="absolute bottom-0 left-0 right-0">
+            <div className="h-1 w-full bg-surface-secondary">
+              <div
+                className="h-1 bg-primary transition-[width] duration-300 ease-out"
+                style={{ width: `${Math.round((file.progress ?? 0) * 100)}%` }}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round((file.progress ?? 0) * 100)}
+              />
+            </div>
+            {/* Real-time progress overlay for active uploads */}
+            {file.file_id && (
+              <div className="absolute -top-16 left-0 right-0 z-10">
+                <RealTimeProgressBar
+                  fileId={file.file_id}
+                  fileName={file.filename || 'Unknown file'}
+                  fileSize={file.size || 0}
+                  className="text-xs"
+                />
+              </div>
+            )}
           </div>
         )}
       </button>

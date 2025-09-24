@@ -41,19 +41,67 @@ export const useEnhancedFileHandling = (options: EnhancedFileHandlingOptions = {
     clearSession
   } = useWebSocketProgress({
     onProgress: (fileId, progress, stage, details) => {
-      logger.debug(`Upload progress for ${fileId}: ${progress * 100}% (${stage})`);
+      logger.debug(`Real-time upload progress for ${fileId}: ${Math.round(progress * 100)}% (${stage})`);
+      
+      // Update local progress state
+      setUploadQueue(prev => {
+        const newQueue = new Map(prev);
+        const upload = newQueue.get(fileId);
+        if (upload) {
+          upload.progress = progress;
+          upload.stage = stage;
+          upload.status = 'uploading';
+          newQueue.set(fileId, upload);
+        }
+        return newQueue;
+      });
     },
     onComplete: (fileId, result) => {
       logger.info(`Upload completed for ${fileId}:`, result);
+      
+      // Update local state
+      setUploadQueue(prev => {
+        const newQueue = new Map(prev);
+        const upload = newQueue.get(fileId);
+        if (upload) {
+          upload.status = 'completed';
+          upload.progress = 1;
+          upload.stage = 'completed';
+          upload.result = result;
+          newQueue.set(fileId, upload);
+        }
+        return newQueue;
+      });
+      
       clearSession(fileId);
     },
     onError: (fileId, error, retryable) => {
       logger.error(`Upload error for ${fileId}:`, error, 'retryable:', retryable);
+      
+      // Update local state
+      setUploadQueue(prev => {
+        const newQueue = new Map(prev);
+        const upload = newQueue.get(fileId);
+        if (upload) {
+          upload.status = 'error';
+          upload.error = error;
+          upload.retryable = retryable;
+          newQueue.set(fileId, upload);
+        }
+        return newQueue;
+      });
+      
       if (retryable) {
         showToast({
           message: localize('com_ui_upload_retrying'),
           status: 'info',
           duration: 3000
+        });
+      } else {
+        showToast({
+          message: error,
+          status: 'error',
+          duration: 5000
         });
       }
     }
