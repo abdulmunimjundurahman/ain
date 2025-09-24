@@ -302,3 +302,6 @@ modelSpecs:
 #     # model_parameters:
 #     #   temperature: 0.1
 
+
+ocr:
+  mistralModel: "mistral-ocr-latest"
