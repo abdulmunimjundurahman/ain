@@ -45,7 +45,7 @@ export default function FileContext({
     select: (data) => mergeFileConfig(data),
   });
 
-  const { handleFileChange } = useFileHandling({
+  const { handleFileChange, retryUpload } = useFileHandling({
     overrideEndpoint: EModelEndpoint.agents,
     additionalMetadata: { agent_id, tool_resource: EToolResources.ocr },
     fileSetter: setFiles,
@@ -137,6 +137,7 @@ export default function FileContext({
           setFilesLoading={setFilesLoading}
           agent_id={agent_id}
           tool_resource={EToolResources.ocr}
+          onRetry={(file) => retryUpload(file, EToolResources.ocr)}
           Wrapper={({ children }) => <div className="flex flex-wrap gap-2">{children}</div>}
         />
         <div>

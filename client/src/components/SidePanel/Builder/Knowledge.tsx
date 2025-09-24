@@ -41,7 +41,7 @@ export default function Knowledge({
   const { data: fileConfig = defaultFileConfig } = useGetFileConfig({
     select: (data) => mergeFileConfig(data),
   });
-  const { handleFileChange } = useFileHandling({
+  const { handleFileChange, retryUpload } = useFileHandling({
     overrideEndpoint: endpoint,
     additionalMetadata: { assistant_id },
     fileSetter: setFiles,
@@ -89,6 +89,7 @@ export default function Knowledge({
           setFiles={setFiles}
           setFilesLoading={setFilesLoading}
           assistant_id={assistant_id}
+          onRetry={(file) => retryUpload(file)}
           fileFilter={(file: ExtendedFile) =>
             retrievalMimeTypes.some((regex) => regex.test(file.type ?? ''))
           }
@@ -99,6 +100,7 @@ export default function Knowledge({
           setFiles={setFiles}
           setFilesLoading={setFilesLoading}
           assistant_id={assistant_id}
+          onRetry={(file) => retryUpload(file)}
           fileFilter={(file: ExtendedFile) =>
             !retrievalMimeTypes.some((regex) => regex.test(file.type ?? ''))
           }

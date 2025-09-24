@@ -20,6 +20,7 @@ export default function FileRow({
   fileFilter,
   isRTL = false,
   Wrapper,
+  onRetry,
 }: {
   files: Map<string, ExtendedFile> | undefined;
   abortUpload?: () => void;
@@ -31,6 +32,7 @@ export default function FileRow({
   tool_resource?: EToolResources;
   isRTL?: boolean;
   Wrapper?: React.FC<{ children: React.ReactNode }>;
+  onRetry?: (file: ExtendedFile) => void;
 }) {
   const localize = useLocalize();
   const { showToast } = useToastContext();
@@ -136,10 +138,16 @@ export default function FileRow({
                     url={file.preview ?? file.filepath}
                     onDelete={handleDelete}
                     progress={file.progress}
+                    error={file.error}
+                    onRetry={onRetry ? () => onRetry(file) : undefined}
                     source={file.source}
                   />
                 ) : (
-                  <FileContainer file={file} onDelete={handleDelete} />
+                  <FileContainer
+                    file={file}
+                    onDelete={handleDelete}
+                    onRetry={onRetry ? () => onRetry(file) : undefined}
+                  />
                 )}
               </div>
             );

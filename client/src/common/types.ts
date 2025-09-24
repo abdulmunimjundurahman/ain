@@ -554,6 +554,7 @@ export interface ExtendedFile {
   embedded?: boolean;
   tool_resource?: string;
   metadata?: t.TFile['metadata'];
+  error?: boolean;
 }
 
 export interface ModelItemProps {

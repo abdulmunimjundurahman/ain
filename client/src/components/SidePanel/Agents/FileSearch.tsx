@@ -41,7 +41,7 @@ export default function FileSearch({
     select: (data) => mergeFileConfig(data),
   });
 
-  const { handleFileChange } = useFileHandling({
+  const { handleFileChange, retryUpload } = useFileHandling({
     overrideEndpoint: EModelEndpoint.agents,
     additionalMetadata: { agent_id, tool_resource: EToolResources.file_search },
     fileSetter: setFiles,
@@ -141,6 +141,7 @@ export default function FileSearch({
           setFilesLoading={setFilesLoading}
           agent_id={agent_id}
           tool_resource={EToolResources.file_search}
+          onRetry={(file) => retryUpload(file, EToolResources.file_search)}
           Wrapper={({ children }) => <div className="flex flex-wrap gap-2">{children}</div>}
         />
         <div>

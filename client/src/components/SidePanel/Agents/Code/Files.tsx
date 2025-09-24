@@ -32,7 +32,7 @@ export default function Files({
   const { data: fileConfig = defaultFileConfig } = useGetFileConfig({
     select: (data) => mergeFileConfig(data),
   });
-  const { abortUpload, handleFileChange } = useFileHandling({
+  const { abortUpload, handleFileChange, retryUpload } = useFileHandling({
     fileSetter: setFiles,
     overrideEndpoint: EModelEndpoint.agents,
     additionalMetadata: { agent_id, tool_resource },
@@ -80,6 +80,7 @@ export default function Files({
           abortUpload={abortUpload}
           tool_resource={tool_resource}
           setFilesLoading={setFilesLoading}
+          onRetry={(file) => retryUpload(file, tool_resource)}
           Wrapper={({ children }) => <div className="flex flex-wrap gap-2">{children}</div>}
         />
         <div>

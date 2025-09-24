@@ -23,6 +23,7 @@ const staticCache = require('./utils/staticCache');
 const noIndex = require('./middleware/noIndex');
 const { seedDatabase } = require('~/models');
 const routes = require('./routes');
+const uploadProgressManager = require('./services/WebSocket/UploadProgress');
 
 const { PORT, HOST, ALLOW_SOCIAL_LOGIN, DISABLE_COMPRESSION, TRUST_PROXY } = process.env ?? {};
 
@@ -154,7 +155,7 @@ const startServer = async () => {
     res.send(updatedIndexHtml);
   });
 
-  app.listen(port, host, () => {
+  const server = app.listen(port, host, () => {
     if (host === '0.0.0.0') {
       logger.info(
         `Server listening on all interfaces at port ${port}. Use http://localhost:${port} to access it`,
@@ -162,6 +163,10 @@ const startServer = async () => {
     } else {
       logger.info(`Server listening at http://${host == '0.0.0.0' ? 'localhost' : host}:${port}`);
     }
+
+    // Initialize WebSocket server for upload progress
+    uploadProgressManager.initialize(server);
+    logger.info('WebSocket server initialized for upload progress tracking');
 
     initializeMCPs().then(() => checkMigrations());
   });

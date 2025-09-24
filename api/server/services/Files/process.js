@@ -35,6 +35,9 @@ const { LB_QueueAsyncCall } = require('~/server/utils/queue');
 const { getStrategyFunctions } = require('./strategies');
 const { determineFileType } = require('~/server/utils');
 const { STTService } = require('./Audio/STTService');
+const ProcessingPipelineManager = require('./ProcessingPipeline');
+const ErrorRecoveryManager = require('./ErrorRecovery');
+const uploadProgressManager = require('../WebSocket/UploadProgress');
 
 /**
  * Creates a modular file upload wrapper that ensures filename sanitization
@@ -508,9 +511,34 @@ const processAgentFileUpload = async ({ req, res, metadata }) => {
   const { file } = req;
   const appConfig = req.config;
   const { agent_id, tool_resource, file_id, temp_file_id = null } = metadata;
+  
   if (agent_id && !tool_resource) {
     throw new Error('No tool resource provided for agent file upload');
   }
+
+  // Initialize processing pipeline
+  const requiredStages = [];
+  if (tool_resource === EToolResources.ocr) requiredStages.push('ocr');
+  if (tool_resource === EToolResources.file_search) requiredStages.push('embedding');
+  if (file.mimetype.startsWith('audio/')) requiredStages.push('stt');
+
+  ProcessingPipelineManager.initializePipeline(
+    file_id,
+    req.user.id,
+    {
+      fileName: file.originalname,
+      size: file.size,
+      type: file.mimetype,
+      toolResource: tool_resource,
+      agentId: agent_id
+    },
+    requiredStages
+  );
+
+  // Start validation stage
+  ProcessingPipelineManager.startStage(file_id, 'validation', {
+    description: 'Validating file format and size'
+  });
 
   if (tool_resource === EToolResources.file_search && file.mimetype.startsWith('image')) {
     throw new Error('Image uploads are not supported for file search tool resources');

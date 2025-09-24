@@ -10,7 +10,7 @@ function FileFormChat({ conversation }: { conversation: TConversation | null }) 
   const { files, setFiles, setFilesLoading } = useChatContext();
   const chatDirection = useRecoilValue(store.chatDirection).toLowerCase();
   const { endpoint: _endpoint } = conversation ?? { endpoint: null };
-  const { abortUpload } = useFileHandling();
+  const { abortUpload, retryUpload } = useFileHandling();
 
   const isRTL = chatDirection === 'rtl';
 
@@ -21,6 +21,7 @@ function FileFormChat({ conversation }: { conversation: TConversation | null }) 
         setFiles={setFiles}
         abortUpload={abortUpload}
         setFilesLoading={setFilesLoading}
+        onRetry={(file) => retryUpload(file)}
         isRTL={isRTL}
         Wrapper={({ children }) => <div className="mx-2 mt-2 flex flex-wrap gap-2">{children}</div>}
       />

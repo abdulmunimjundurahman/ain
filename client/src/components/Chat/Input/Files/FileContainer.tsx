@@ -1,3 +1,5 @@
+import { Button } from '@librechat/client';
+import { useLocalize } from '~/hooks';
 import type { TFile } from 'librechat-data-provider';
 import type { ExtendedFile } from '~/common';
 import { getFileType, cn } from '~/utils';
@@ -11,6 +13,7 @@ const FileContainer = ({
   containerClassName,
   onDelete,
   onClick,
+  onRetry,
 }: {
   file: Partial<ExtendedFile | TFile>;
   overrideType?: string;
@@ -18,8 +21,10 @@ const FileContainer = ({
   containerClassName?: string;
   onDelete?: () => void;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
+  onRetry?: () => void;
 }) => {
   const fileType = getFileType(overrideType ?? file.type);
+  const localize = useLocalize();
 
   return (
     <div
@@ -34,7 +39,7 @@ const FileContainer = ({
           buttonClassName,
         )}
       >
-        <div className="w-56 p-1.5">
+        <div className="w-56 p-1.5 pb-3">
           <div className="flex flex-row items-center gap-2">
             <FilePreview file={file} fileType={fileType} className="relative" />
             <div className="overflow-hidden">
@@ -47,8 +52,29 @@ const FileContainer = ({
             </div>
           </div>
         </div>
+        {/* Linear progress bar at bottom */}
+        {typeof file.progress === 'number' && file.progress < 1 && (
+          <div className="absolute bottom-0 left-0 h-1 w-full bg-surface-secondary">
+            <div
+              className="h-1 bg-primary transition-[width] duration-150 ease-linear"
+              style={{ width: `${Math.round((file.progress ?? 0) * 100)}%` }}
+              role="progressbar"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round((file.progress ?? 0) * 100)}
+            />
+          </div>
+        )}
       </button>
       {onDelete && <RemoveFile onRemove={onDelete} />}
+      {/* Retry button when error */}
+      {file?.error && onRetry && (
+        <div className="absolute bottom-1 right-2">
+          <Button variant="outline" size="sm" onClick={onRetry}>
+            {localize('com_agents_error_retry')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

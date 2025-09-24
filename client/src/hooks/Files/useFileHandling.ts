@@ -41,7 +41,7 @@ const useFileHandling = (params?: UseFileHandling) => {
   const { showToast } = useToastContext();
   const [errors, setErrors] = useState<string[]>([]);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const { startUploadTimer, clearUploadTimer } = useDelayedUploadToast();
+  const { startUploadTimer, noteProgress, clearUploadTimer } = useDelayedUploadToast();
   const { files, setFiles, setFilesLoading, conversation } = useChatContext();
   const setEphemeralAgent = useSetRecoilState(
     ephemeralAgentByConvoId(conversation?.conversationId ?? Constants.NEW_CONVO),
@@ -99,6 +99,9 @@ const useFileHandling = (params?: UseFileHandling) => {
     return () => debouncedDisplayToast.cancel();
   }, [errors, debouncedDisplayToast]);
 
+  // Track per-upload progress event handlers to safely remove listeners
+  const progressHandlersRef = useRef<Record<string, (e: Event) => void>>({});
+
   const uploadFile = useUploadFileMutation(
     {
       onSuccess: (data) => {
@@ -108,33 +111,30 @@ const useFileHandling = (params?: UseFileHandling) => {
           queryClient.refetchQueries([QueryKeys.agent, agent_id]);
           return;
         }
+        // Success: snap to 100% with real completion
         updateFileById(
           data.temp_file_id,
           {
-            progress: 0.9,
+            progress: 1,
+            file_id: data.file_id,
+            temp_file_id: data.temp_file_id,
             filepath: data.filepath,
+            type: data.type,
+            height: data.height,
+            width: data.width,
+            filename: data.filename,
+            source: data.source,
+            embedded: data.embedded,
+            error: false,
           },
           assistant_id ? true : false,
         );
-
-        setTimeout(() => {
-          updateFileById(
-            data.temp_file_id,
-            {
-              progress: 1,
-              file_id: data.file_id,
-              temp_file_id: data.temp_file_id,
-              filepath: data.filepath,
-              type: data.type,
-              height: data.height,
-              width: data.width,
-              filename: data.filename,
-              source: data.source,
-              embedded: data.embedded,
-            },
-            assistant_id ? true : false,
-          );
-        }, 300);
+        // remove any lingering progress listener
+        const handler = progressHandlersRef.current[data.temp_file_id];
+        if (handler) {
+          window.removeEventListener('fileUploadProgress', handler as EventListener);
+          delete progressHandlersRef.current[data.temp_file_id];
+        }
       },
       onError: (_error, body) => {
         const error = _error as TError | undefined;
@@ -148,7 +148,21 @@ const useFileHandling = (params?: UseFileHandling) => {
           }));
         }
         clearUploadTimer(file_id as string);
-        deleteFileById(file_id as string);
+        // Preserve tile and mark as error with reset progress
+        updateFileById(
+          file_id as string,
+          {
+            error: true,
+            progress: 0,
+          },
+          assistant_id ? true : false,
+        );
+        // remove progress listener for this file
+        const handler = progressHandlersRef.current[file_id as string];
+        if (handler) {
+          window.removeEventListener('fileUploadProgress', handler as EventListener);
+          delete progressHandlersRef.current[file_id as string];
+        }
 
         let errorMessage = 'com_error_files_upload';
 
@@ -206,6 +220,28 @@ const useFileHandling = (params?: UseFileHandling) => {
         formData.append('agent_id', conversation.agent_id);
       }
     }
+
+    // Attach per-file progress handler before starting upload
+    const base = (extendedFile.type?.startsWith('image') ?? false) ? 0.6 : 0.2;
+    const cap = 0.9;
+    const handler = (evt: Event) => {
+      const custom = evt as CustomEvent<{ file_id: string; progress: number }>;
+      if (custom?.detail?.file_id !== extendedFile.file_id) return;
+      const p = custom.detail.progress;
+      const mapped = Math.max(base, Math.min(cap, base + p * (cap - base)));
+      noteProgress(extendedFile.file_id, filename, extendedFile.size, p);
+      updateFileById(
+        extendedFile.file_id,
+        {
+          progress: mapped,
+          error: false,
+        },
+        assistant_id ? true : false,
+      );
+    };
+    // Store and register handler
+    progressHandlersRef.current[extendedFile.file_id] = handler as (e: Event) => void;
+    window.addEventListener('fileUploadProgress', handler as EventListener);
 
     if (!isAssistantsEndpoint(endpoint)) {
       uploadFile.mutate(formData);
@@ -442,6 +478,27 @@ const useFileHandling = (params?: UseFileHandling) => {
       abortControllerRef.current.abort('User aborted upload');
       abortControllerRef.current = null;
     }
+    // Remove any progress listeners
+    Object.entries(progressHandlersRef.current).forEach(([id, handler]) => {
+      window.removeEventListener('fileUploadProgress', handler as unknown as EventListener);
+      clearUploadTimer(id);
+    });
+    progressHandlersRef.current = {};
+  };
+
+  const retryUpload = (file: ExtendedFile, toolResource?: string) => {
+    // Reset error state and retry the same file
+    const updated: ExtendedFile = {
+      ...file,
+      error: false,
+      progress: (file.type?.startsWith('image') ?? false) ? 0.6 : 0.2,
+    };
+    replaceFile(updated);
+    // Ensure tool_resource can be preserved/overridden
+    if (toolResource) {
+      updated.tool_resource = toolResource;
+    }
+    void startUpload(updated);
   };
 
   return {
@@ -450,6 +507,7 @@ const useFileHandling = (params?: UseFileHandling) => {
     abortUpload,
     setFiles,
     files,
+    retryUpload,
   };
 };
 

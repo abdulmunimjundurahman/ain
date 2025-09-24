@@ -31,7 +31,7 @@ export default function CodeFiles({
   const { data: fileConfig = defaultFileConfig } = useGetFileConfig({
     select: (data) => mergeFileConfig(data),
   });
-  const { handleFileChange } = useFileHandling({
+  const { handleFileChange, retryUpload } = useFileHandling({
     overrideEndpoint: endpoint,
     additionalMetadata: { assistant_id, tool_resource },
     fileSetter: setFiles,
@@ -70,6 +70,7 @@ export default function CodeFiles({
           assistant_id={assistant_id}
           tool_resource={tool_resource}
           setFilesLoading={setFilesLoading}
+          onRetry={(file) => retryUpload(file, tool_resource)}
           Wrapper={({ children }) => <div className="flex flex-wrap gap-2">{children}</div>}
         />
         <div>

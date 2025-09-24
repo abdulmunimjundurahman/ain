@@ -349,12 +349,50 @@ export const uploadImage = (
   data: FormData,
   signal?: AbortSignal | null,
 ): Promise<f.TFileUpload> => {
-  const requestConfig = signal ? { signal } : undefined;
+  const file_id = (data.get('file_id') as string) || '';
+  const requestConfig = {
+    ...(signal ? { signal } : {}),
+    onUploadProgress: (e: ProgressEvent) => {
+      try {
+        const total = (e as any).total ?? 0;
+        const loaded = (e as any).loaded ?? 0;
+        const progress = total > 0 ? loaded / total : 0;
+        if (file_id) {
+          window.dispatchEvent(
+            new CustomEvent('fileUploadProgress', {
+              detail: { file_id, progress },
+            }),
+          );
+        }
+      } catch (_err) {
+        // noop: progress events are best-effort
+      }
+    },
+  } as any;
   return request.postMultiPart(endpoints.images(), data, requestConfig);
 };
 
 export const uploadFile = (data: FormData, signal?: AbortSignal | null): Promise<f.TFileUpload> => {
-  const requestConfig = signal ? { signal } : undefined;
+  const file_id = (data.get('file_id') as string) || '';
+  const requestConfig = {
+    ...(signal ? { signal } : {}),
+    onUploadProgress: (e: ProgressEvent) => {
+      try {
+        const total = (e as any).total ?? 0;
+        const loaded = (e as any).loaded ?? 0;
+        const progress = total > 0 ? loaded / total : 0;
+        if (file_id) {
+          window.dispatchEvent(
+            new CustomEvent('fileUploadProgress', {
+              detail: { file_id, progress },
+            }),
+          );
+        }
+      } catch (_err) {
+        // noop: progress events are best-effort
+      }
+    },
+  } as any;
   return request.postMultiPart(endpoints.files(), data, requestConfig);
 };
 
