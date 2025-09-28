@@ -7,6 +7,7 @@ import { useGetEndpointsQuery, useGetStartupConfig } from '~/data-provider';
 import ConvoIcon from '~/components/Endpoints/ConvoIcon';
 import { useLocalize, useAuthContext } from '~/hooks';
 import { getIconEndpoint, getEntity } from '~/utils';
+import { getTextDirection, getTextAlign } from '~/utils/rtl';
 
 const containerClassName =
   'shadow-stroke relative flex h-full items-center justify-center rounded-full bg-white dark:bg-presentation dark:text-white text-black dark:after:shadow-none ';
@@ -178,7 +179,8 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
                 text={name}
                 className={`${getTextSizeClass(name)} font-medium text-text-primary`}
                 delay={50}
-                textAlign="center"
+                textAlign={getTextAlign(name, 'center')}
+                direction={getTextDirection(name)}
                 animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
                 animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
                 easing={easings.easeOutCubic}
@@ -193,7 +195,8 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
               text={greetingText}
               className={`${getTextSizeClass(greetingText)} font-medium text-text-primary`}
               delay={50}
-              textAlign="center"
+              textAlign={getTextAlign(greetingText, 'center')}
+              direction={getTextDirection(greetingText)}
               animationFrom={{ opacity: 0, transform: 'translate3d(0,50px,0)' }}
               animationTo={{ opacity: 1, transform: 'translate3d(0,0,0)' }}
               easing={easings.easeOutCubic}
@@ -204,7 +207,10 @@ export default function Landing({ centerFormOnLanding }: { centerFormOnLanding: 
           )}
         </div>
         {description && (
-          <div className="animate-fadeIn mt-4 max-w-md text-center text-sm font-normal text-text-primary">
+          <div 
+            className="animate-fadeIn mt-4 max-w-md text-center text-sm font-normal text-text-primary"
+            style={{ direction: getTextDirection(description) }}
+          >
             {description}
           </div>
         )}

@@ -187,7 +187,7 @@ actions:
 endpoints:
   # Only enable local Ollama endpoint
   custom:
-    - name: "Ollama"
+    - name: "GAITH"
       apiKey: "ollama"
       # use 'host.docker.internal' instead of localhost if running LibreChat in a docker container
       baseURL: "http://151.104.133.17:5555/v1/" 
@@ -211,7 +211,8 @@ endpoints:
       summarize: false
       summaryModel: "current_model"
       forcePrompt: false
-      modelDisplayLabel: "Ollama"
+      modelDisplayLabel: "GAITH"
+      iconURL: "/assets/osos-logo.svg"
 
 # Model Specs Configuration - Define default models for users
 modelSpecs:
@@ -220,30 +221,30 @@ modelSpecs:
   # Set to true to enforce model specs (disables manual model selection)
   # enforce: false
   list:
-    - name: "default-ollama-chat"
+    - name: "default-gaith-chat"
       label: "Default Chat"
       default: true
       description: "The default chat model used for general conversations."
       preset:
-        endpoint: "Ollama"
+        endpoint: "GAITH"
         model: "llama3.1:latest"
         temperature: 0.7
         max_tokens: 2048
         greeting: "Hello! I’m your smart assistant powered by Llama 3.1. How can I help you today?"
-    - name: "fast-response"
+    - name: "gaith-fast-response"
       label: "Fast Response"
       description: "Quick replies using Phi 2.7B for faster interactions."
       preset:
-        endpoint: "Ollama"
+        endpoint: "GAITH"
         model: "phi:2.7b"
         temperature: 0.5
         max_tokens: 1024
         greeting: "Hi! I’m optimized for fast responses. What can I help you with?"
-    - name: "advanced-reasoning"
+    - name: "gaith-advanced-reasoning"
       label: "Advanced Reasoning"
       description: "Deep reasoning with Llama 3.3 70B for complex tasks."
       preset:
-        endpoint: "Ollama"
+        endpoint: "GAITH"
         model: "llama3.3:70b"
         temperature: 0.3
         max_tokens: 4096

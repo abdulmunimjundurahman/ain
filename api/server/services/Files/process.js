@@ -434,6 +434,7 @@ const processFileUpload = async ({ req, res, metadata }) => {
   }
 
   const { file } = req;
+  const tool_resource = req.body?.tool_resource;
   const sanitizedUploadFn = createSanitizedUploadWrapper(handleFileUpload);
   const {
     id,
@@ -449,6 +450,48 @@ const processFileUpload = async ({ req, res, metadata }) => {
     file_id,
     openai,
   });
+
+  // If client indicates OCR for non-agent uploads, produce text file instead of image attachment
+  if (!isAssistantUpload && tool_resource === EToolResources.ocr) {
+    const fileConfig = mergeFileConfig(appConfig?.fileConfig);
+    const shouldUseOCR = fileConfig.checkType(
+      file.mimetype,
+      fileConfig.ocr?.supportedMimeTypes || [],
+    );
+
+    if (!shouldUseOCR) {
+      throw new Error(`File type ${file.mimetype} is not supported for OCR`);
+    }
+
+    const { handleFileUpload: uploadOCR } = getStrategyFunctions(
+      appConfig?.ocr?.strategy ?? FileSources.mistral_ocr,
+    );
+
+    const { text, bytes: ocrBytes, filepath: ocrFileURL } = await uploadOCR({
+      req,
+      file,
+      loadAuthValues,
+    });
+
+    const textResult = await createFile(
+      {
+        user: req.user.id,
+        file_id: id ?? file_id,
+        temp_file_id,
+        bytes: ocrBytes,
+        filepath: ocrFileURL ?? _filepath,
+        filename: filename ?? sanitizeFilename(file.originalname),
+        context: FileContext.message_attachment,
+        type: 'text/plain',
+        source: FileSources.text,
+        model: undefined,
+        embedded,
+      },
+      true,
+    );
+    res.status(200).json({ message: 'File uploaded and processed successfully', ...textResult });
+    return;
+  }
 
   if (isAssistantUpload && !metadata.message_file && !metadata.tool_resource) {
     await openai.beta.assistants.files.create(metadata.assistant_id, {

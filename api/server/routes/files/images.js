@@ -21,6 +21,11 @@ router.post('/', async (req, res) => {
     metadata.temp_file_id = metadata.file_id;
     metadata.file_id = req.file_id;
 
+    // FIX: Check for tool_resource first to ensure OCR processing
+    if (metadata.tool_resource != null) {
+      return await processAgentFileUpload({ req, res, metadata });
+    }
+
     if (isAgentsEndpoint(metadata.endpoint) && metadata.tool_resource != null) {
       return await processAgentFileUpload({ req, res, metadata });
     }

@@ -219,8 +219,37 @@ class AgentClient extends BaseClient {
     message.image_urls = image_urls.length ? image_urls : undefined;
     if (text && text.length) {
       message.ocr = text;
+      // Update the message in the database with OCR text
+      await this.updateMessageInDatabase({
+        messageId: message.messageId,
+        ocr: text,
+      });
     }
     return files;
+  }
+
+  /**
+   * Updates a message in the database with OCR text
+   * @param {Object} params - The parameters object
+   * @param {string} params.messageId - The message ID to update
+   * @param {string} params.ocr - The OCR text to save
+   * @returns {Promise<void>}
+   */
+  async updateMessageInDatabase({ messageId, ocr }) {
+    try {
+      const { updateMessage } = require('~/models');
+      logger.debug(`[AgentClient] Updating message ${messageId} with OCR text:`, ocr?.substring(0, 100) + '...');
+      const result = await updateMessage(this.options.req, { 
+        messageId, 
+        ocr 
+      });
+      logger.debug(`[AgentClient] Successfully updated message ${messageId} with OCR text. Result:`, result);
+    } catch (error) {
+      logger.error(`[AgentClient] Error updating message ${messageId} with OCR text:`, error);
+      logger.error(`[AgentClient] Error details:`, error.message);
+      logger.error(`[AgentClient] Error stack:`, error.stack);
+      // Don't throw - OCR text is still available in memory for this request
+    }
   }
 
   async buildMessages(
@@ -273,6 +302,7 @@ class AgentClient extends BaseClient {
     }
 
     const formattedMessages = orderedMessages.map((message, i) => {
+      logger.debug(`[AgentClient] Processing message ${message.messageId}, has OCR: ${!!message.ocr}`);
       const formattedMessage = formatMessage({
         message,
         userName: this.options?.name,
@@ -280,16 +310,24 @@ class AgentClient extends BaseClient {
       });
 
       if (message.ocr && i !== orderedMessages.length - 1) {
+        // Format OCR text with clear context about the source
+        logger.debug(`[AgentClient] Found OCR text for message ${message.messageId}:`, message.ocr?.substring(0, 100) + '...');
+        const formattedOCR = `\n--- OCR Text from attached image ---\n${message.ocr}\n--- End OCR Text ---\n`;
+        
         if (typeof formattedMessage.content === 'string') {
-          formattedMessage.content = message.ocr + '\n' + formattedMessage.content;
+          formattedMessage.content = formattedOCR + formattedMessage.content;
         } else {
           const textPart = formattedMessage.content.find((part) => part.type === 'text');
           textPart
-            ? (textPart.text = message.ocr + '\n' + textPart.text)
-            : formattedMessage.content.unshift({ type: 'text', text: message.ocr });
+            ? (textPart.text = formattedOCR + textPart.text)
+            : formattedMessage.content.unshift({ type: 'text', text: formattedOCR });
         }
+        logger.debug(`[AgentClient] Added OCR text to message content`);
       } else if (message.ocr && i === orderedMessages.length - 1) {
-        systemContent = [systemContent, message.ocr].join('\n');
+        logger.debug(`[AgentClient] Found OCR text for last message ${message.messageId}:`, message.ocr?.substring(0, 100) + '...');
+        const formattedOCR = `\n--- OCR Text from attached image ---\n${message.ocr}\n--- End OCR Text ---\n`;
+        systemContent = [systemContent, formattedOCR].join('\n');
+        logger.debug(`[AgentClient] Added OCR text to system content`);
       }
 
       const needsTokenCount =

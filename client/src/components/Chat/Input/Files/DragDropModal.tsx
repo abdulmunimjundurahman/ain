@@ -27,14 +27,29 @@ const DragDropModal = ({ onOptionSelect, setShowModal, files, isVisible }: DragD
    * */
   const capabilities = useAgentCapabilities(agentsConfig?.capabilities ?? defaultAgentCapabilities);
   const options = useMemo(() => {
-    const _options: FileOption[] = [
-      {
+    const _options: FileOption[] = [];
+    
+    // Only show "Upload as Image" for mixed file types or when OCR is not enabled
+    const hasImages = files.some((file) => file.type?.startsWith('image/'));
+    const allImages = files.every((file) => file.type?.startsWith('image/'));
+    const showImageOption = hasImages && (!capabilities.ocrEnabled || !allImages);
+    
+    if (showImageOption) {
+      _options.push({
         label: localize('com_ui_upload_image_input'),
         value: undefined,
         icon: <ImageUpIcon className="icon-md" />,
         condition: files.every((file) => file.type?.startsWith('image/')),
-      },
-    ];
+      });
+    }
+    
+    if (capabilities.ocrEnabled) {
+      _options.push({
+        label: localize('com_ui_upload_ocr_text'),
+        value: EToolResources.ocr,
+        icon: <FileType2Icon className="icon-md" />,
+      });
+    }
     if (capabilities.fileSearchEnabled) {
       _options.push({
         label: localize('com_ui_upload_file_search'),
@@ -47,13 +62,6 @@ const DragDropModal = ({ onOptionSelect, setShowModal, files, isVisible }: DragD
         label: localize('com_ui_upload_code_files'),
         value: EToolResources.execute_code,
         icon: <TerminalSquareIcon className="icon-md" />,
-      });
-    }
-    if (capabilities.ocrEnabled) {
-      _options.push({
-        label: localize('com_ui_upload_ocr_text'),
-        value: EToolResources.ocr,
-        icon: <FileType2Icon className="icon-md" />,
       });
     }
 

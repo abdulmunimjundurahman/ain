@@ -18,6 +18,7 @@ import { useInteractionHealthCheck } from '~/data-provider';
 import { useChatContext } from '~/Providers/ChatContext';
 import { globalAudioId } from '~/common';
 import { useLocalize } from '~/hooks';
+import { EToolResources, EModelEndpoint } from 'librechat-data-provider';
 import store from '~/store';
 
 type KeyEvent = KeyboardEvent<HTMLTextAreaElement>;
@@ -38,6 +39,9 @@ export default function useTextarea({
   const isComposing = useRef(false);
   const agentsMap = useAgentsMapContext();
   const { handleFiles } = useFileHandling();
+  const { handleFiles: handleOpenAIUploads } = useFileHandling({
+    overrideEndpoint: EModelEndpoint.openAI,
+  });
   const assistantMap = useAssistantsMapContext();
   const checkHealth = useInteractionHealthCheck();
   const enterToSend = useRecoilValue(store.enterToSend);
@@ -222,16 +226,37 @@ export default function useTextarea({
       if (clipboardData.files.length > 0) {
         setFilesLoading(true);
         const timestampedFiles: File[] = [];
+        let toolResource: string | undefined;
+        
         for (const file of clipboardData.files) {
           const newFile = new File([file], `clipboard_${+new Date()}_${file.name}`, {
             type: file.type,
           });
           timestampedFiles.push(newFile);
+          
+          // Auto-detect tool resource based on file type
+          if (file.type.startsWith('image/')) {
+            toolResource = EToolResources.ocr;
+          } else if (!toolResource) {
+            // For non-image files, default to file search
+            toolResource = EToolResources.file_search;
+          }
         }
-        handleFiles(timestampedFiles);
+        
+        const allImages = timestampedFiles.every((f) => f.type.startsWith('image/'));
+        if (allImages) {
+          if (isAssistant) {
+            // Route through non-Assistants endpoint to trigger OCR text flow
+            handleOpenAIUploads(timestampedFiles, EToolResources.ocr);
+          } else {
+            handleFiles(timestampedFiles, EToolResources.ocr);
+          }
+        } else {
+          handleFiles(timestampedFiles, toolResource);
+        }
       }
     },
-    [handleFiles, setFilesLoading, textAreaRef],
+    [handleFiles, handleOpenAIUploads, setFilesLoading, textAreaRef, isAssistant],
   );
 
   return {

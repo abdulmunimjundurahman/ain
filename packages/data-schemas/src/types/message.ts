@@ -16,6 +16,7 @@ export interface IMessage extends Document {
   summaryTokenCount?: number;
   sender?: string;
   text?: string;
+  ocr?: string;
   summary?: string;
   isCreatedByUser: boolean;
   unfinished?: boolean;

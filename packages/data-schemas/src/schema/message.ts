@@ -55,6 +55,9 @@ const messageSchema: Schema<IMessage> = new Schema(
       type: String,
       meiliIndex: true,
     },
+    ocr: {
+      type: String,
+    },
     summary: {
       type: String,
     },

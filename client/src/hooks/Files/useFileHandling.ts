@@ -208,13 +208,15 @@ const useFileHandling = (params?: UseFileHandling) => {
       }
     }
 
+    // Always include tool_resource if present so the server can handle OCR/file_search
+    const tool_resource = extendedFile.tool_resource;
+    if (tool_resource != null && formData.get('tool_resource') == null) {
+      formData.append('tool_resource', tool_resource);
+    }
+
     if (isAgentsEndpoint(endpoint)) {
       if (!agent_id) {
         formData.append('message_file', 'true');
-      }
-      const tool_resource = extendedFile.tool_resource;
-      if (tool_resource != null) {
-        formData.append('tool_resource', tool_resource);
       }
       if (conversation?.agent_id != null && formData.get('agent_id') == null) {
         formData.append('agent_id', conversation.agent_id);

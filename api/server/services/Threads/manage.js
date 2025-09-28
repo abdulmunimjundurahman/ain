@@ -91,6 +91,7 @@ async function saveUserMessage(req, params) {
     thread_id: params.thread_id,
     sender: 'User',
     text: params.text,
+    ocr: params.ocr,
     isCreatedByUser: true,
     tokenCount,
   };

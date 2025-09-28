@@ -44,8 +44,9 @@ export default function useDragHelpers() {
     [conversation?.endpoint],
   );
 
-  const { handleFiles } = useFileHandling({
-    overrideEndpoint: isAssistants ? undefined : EModelEndpoint.agents,
+  const { handleFiles } = useFileHandling();
+  const { handleFiles: handleOpenAIUploads } = useFileHandling({
+    overrideEndpoint: EModelEndpoint.openAI,
   });
 
   const [{ canDrop, isOver }, drop] = useDrop(
@@ -53,8 +54,16 @@ export default function useDragHelpers() {
       accept: [NativeTypes.FILE],
       drop(item: { files: File[] }) {
         console.log('drop', item.files);
-        if (isAssistants) {
-          handleFiles(item.files);
+
+        // If all files are images, force OCR-as-text behavior
+        const allFilesAreImages = item.files.every((file) => file.type.startsWith('image/'));
+        if (allFilesAreImages) {
+          if (isAssistants) {
+            // Route through non-Assistants endpoint to trigger OCR text flow
+            handleOpenAIUploads(item.files, EToolResources.ocr);
+          } else {
+            handleFiles(item.files, EToolResources.ocr);
+          }
           return;
         }
 
@@ -64,6 +73,7 @@ export default function useDragHelpers() {
         const fileSearchEnabled = capabilities.includes(AgentCapabilities.file_search) === true;
         const codeEnabled = capabilities.includes(AgentCapabilities.execute_code) === true;
         const ocrEnabled = capabilities.includes(AgentCapabilities.ocr) === true;
+
         if (!codeEnabled && !fileSearchEnabled && !ocrEnabled) {
           handleFiles(item.files);
           return;

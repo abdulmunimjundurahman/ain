@@ -363,12 +363,28 @@ class OpenAIClient extends BaseClient {
    * @returns {Promise<MongoFile[]>}
    */
   async addImageURLs(message, attachments) {
-    const { files, image_urls } = await encodeAndFormat(
+    const { files, image_urls, text } = await encodeAndFormat(
       this.options.req,
       attachments,
       this.options.endpoint,
     );
     message.image_urls = image_urls.length ? image_urls : undefined;
+    // If OCR/text files were produced (FileSources.text), encodeAndFormat aggregates them into `text`.
+    // Prepend into the user message content for non-vision models to ensure LLM sees extracted text.
+    if (text && text.length) {
+      if (typeof message.content === 'string') {
+        message.content = `${text}\n${message.content}`;
+      } else if (Array.isArray(message.content)) {
+        const firstTextIndex = message.content.findIndex((p) => p.type === ContentTypes.TEXT);
+        if (firstTextIndex >= 0) {
+          message.content[firstTextIndex].text = `${text}\n${message.content[firstTextIndex].text}`;
+        } else {
+          message.content.unshift({ type: ContentTypes.TEXT, text });
+        }
+      } else if (typeof message.text === 'string') {
+        message.text = `${text}\n${message.text}`;
+      }
+    }
     return files;
   }
 

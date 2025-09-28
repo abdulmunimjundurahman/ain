@@ -29,7 +29,15 @@ export const useUploadFileMutation = (
       const height = body.get('height') ?? '';
       const version = body.get('version') ?? '';
       const endpoint = (body.get('endpoint') ?? '') as string;
+      const tool_resource = body.get('tool_resource') ?? '';
+      
       if (isAssistantsEndpoint(endpoint) && version === '2') {
+        return dataService.uploadFile(body, signal);
+      }
+
+      // FIX: If tool_resource is set (OCR, file_search, etc.), always use /api/files
+      // This ensures OCR processing goes through the correct route
+      if (tool_resource !== '') {
         return dataService.uploadFile(body, signal);
       }
 

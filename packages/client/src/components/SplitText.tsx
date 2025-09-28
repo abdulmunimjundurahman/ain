@@ -41,9 +41,18 @@ interface SplitTextProps {
   threshold?: number;
   rootMargin?: string;
   textAlign?: 'left' | 'right' | 'center' | 'justify' | 'start' | 'end';
+  direction?: 'ltr' | 'rtl' | 'auto';
   onLetterAnimationComplete?: () => void;
   onLineCountChange?: (lineCount: number) => void;
 }
+
+// RTL detection function
+const isRTLText = (text: string): boolean => {
+  if (!text) return false;
+  // Arabic, Hebrew, Persian/Farsi, Urdu Unicode ranges
+  const RTL_CHAR_REGEX = /[\u0590-\u05FF\u0600-\u06FF\u0700-\u074F\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+  return RTL_CHAR_REGEX.test(text);
+};
 
 const splitGraphemes = (text: string): string[] => {
   if (typeof Intl !== 'undefined' && 'Segmenter' in Intl) {
@@ -68,11 +77,15 @@ const SplitText: React.FC<SplitTextProps> = ({
   threshold = 0.1,
   rootMargin = '-100px',
   textAlign = 'center',
+  direction = 'auto',
   onLetterAnimationComplete,
   onLineCountChange,
 }) => {
-  const words = text.split(' ').map(splitGraphemes);
-  const letters = words.flat();
+  const isRTL = isRTLText(text);
+  
+  // For RTL languages (like Arabic), animate words instead of individual letters
+  const words = text.split(' ');
+  const letters = isRTL ? words : words.map(splitGraphemes).flat();
   const [inView, setInView] = useState(false);
   const ref = useRef<HTMLParagraphElement>(null);
   const animatedCount = useRef(0);
@@ -93,7 +106,7 @@ const SplitText: React.FC<SplitTextProps> = ({
       delay: i * delay,
       config: { easing },
     }),
-    [inView, text, delay, animationFrom, animationTo, easing, onLetterAnimationComplete],
+    [inView, text, delay, animationFrom, animationTo, easing, direction, onLetterAnimationComplete],
   );
 
   useEffect(() => {
@@ -139,30 +152,55 @@ const SplitText: React.FC<SplitTextProps> = ({
       <p
         ref={ref}
         className={`split-parent inline overflow-hidden ${className}`}
-        style={{ textAlign, whiteSpace: 'normal', wordWrap: 'break-word' }}
+        style={{ 
+          textAlign, 
+          direction: direction === 'auto' ? undefined : direction, 
+          whiteSpace: 'normal', 
+          wordWrap: 'break-word' 
+        }}
         aria-hidden="true"
       >
-        {words.map((word, wordIndex) => (
-          <span key={wordIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
-            {word.map((letter, letterIndex) => {
-              const index =
-                words.slice(0, wordIndex).reduce((acc, w) => acc + w.length, 0) + letterIndex;
+        {isRTL ? (
+          // For RTL languages, animate complete words
+          letters.map((word, index) => (
+            <animated.span
+              key={index}
+              style={springs[index]}
+              className="inline-block transform transition-opacity will-change-transform"
+            >
+              {word}
+              {index < letters.length - 1 && (
+                <span style={{ display: 'inline-block', width: '0.3em' }}>&nbsp;</span>
+              )}
+            </animated.span>
+          ))
+        ) : (
+          // For LTR languages, animate individual letters
+          words.map((word, wordIndex) => {
+            const wordLetters = splitGraphemes(word);
+            return (
+              <span key={wordIndex} style={{ display: 'inline-block', whiteSpace: 'nowrap' }}>
+                {wordLetters.map((letter, letterIndex) => {
+                  const index =
+                    words.slice(0, wordIndex).reduce((acc, w) => acc + splitGraphemes(w).length, 0) + letterIndex;
 
-              return (
-                <animated.span
-                  key={index}
-                  style={springs[index]}
-                  className="inline-block transform transition-opacity will-change-transform"
-                >
-                  {letter}
-                </animated.span>
-              );
-            })}
-            {wordIndex < words.length - 1 && (
-              <span style={{ display: 'inline-block', width: '0.3em' }}>&nbsp;</span>
-            )}
-          </span>
-        ))}
+                  return (
+                    <animated.span
+                      key={index}
+                      style={springs[index]}
+                      className="inline-block transform transition-opacity will-change-transform"
+                    >
+                      {letter}
+                    </animated.span>
+                  );
+                })}
+                {wordIndex < words.length - 1 && (
+                  <span style={{ display: 'inline-block', width: '0.3em' }}>&nbsp;</span>
+                )}
+              </span>
+            );
+          })
+        )}
       </p>
     </>
   );
